@@ -7,14 +7,14 @@ Los puntos de cierre en segundo plano y prueba desde la interfaz de Morphe Manag
 | YouTube TV | ABI examinada | Firma original | Parcheo normal | Con Spoof device | Prueba en TV |
 | --- | --- | --- | --- | --- | --- |
 | 7.32.300 | armeabi-v7a | Google | Validado previamente | Validado previamente | LX352 y OTT-01 |
-| 8.02.300 | armeabi-v7a | Google, verificada | Correcto con v1.4.2 y --validate | Correcto con v1.4.2 y --validate | LX352: cinco minutos sin cierres; experimental |
+| 8.02.300 | armeabi-v7a | Google, verificada | Correcto con v1.4.2 y --validate | Correcto con v1.4.2 y --validate | Compatibilidad estable; reproducción y funciones comprobadas en LX352 con Spoof device |
 
 APK de 8.02.300: versión de paquete 802300320, 75 163 552 bytes. SHA-256 del archivo:
 `a4fab76d43098e62fa2fcb3a20df0693475d4c2e4872bc13477e619b1d33b8cb`.
 
 Fuente: https://www.apkmirror.com/apk/google-inc/youtube-for-android-tv-android-tv/youtube-for-android-tv-8-02-300-release/
 
-La versión 8.02.300 continúa experimental: hay una prueba inicial satisfactoria en el LX352, pero no una validación completa en varios dispositivos.
+La versión 8.02.300 se declara compatible sin marca experimental después de las pruebas de reproducción y funciones en el LX352. Esta clasificación no amplía las arquitecturas ni los dispositivos probados: la ejecución sin Spoof device en otro TV y los controles que YouTube no ofreció siguen sin verificar.
 
 La compilación local con la declaración experimental terminó correctamente. Se repitieron los cuatro casos (7.32.300 y 8.02.300, con y sin Spoof device) sin `--force`: todos pasaron `--validate`, reconstrucción del APK y comprobación del nombre de paquete. Los resultados JSON no contienen parches fallidos.
 
