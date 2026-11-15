@@ -9,9 +9,9 @@ Parches no oficiales para **YouTube en Android TV** (`com.google.android.youtube
 
 FaroTV no es un producto de Google, YouTube ni del proyecto Morphe.
 
-En esta rama se está validando **YouTube TV 8.02.300 (armeabi-v7a)**. Su compatibilidad se declara experimental:
-el parcheo pasa las comprobaciones y se probó navegación, reproducción y ajustes durante cinco minutos en un LX352 sin cierres; faltan pruebas completas de funciones y más dispositivos.
-La referencia validada sigue siendo **7.32.300**. Consulta la [matriz de compatibilidad](docs/COMPATIBILIDAD.md).
+**YouTube TV 8.02.300 (armeabi-v7a)** tiene compatibilidad estable, junto con **7.32.300**.
+Se comprobaron navegación, reproducción, SponsorBlock, el contador de «No me gusta», nueve filtros individuales del reproductor y el diálogo de reinicio en el LX352.
+Consulta la [matriz de compatibilidad](docs/COMPATIBILIDAD.md) para conocer los dispositivos probados y los límites de las pruebas.
 
 ## ✨ Qué hace
 

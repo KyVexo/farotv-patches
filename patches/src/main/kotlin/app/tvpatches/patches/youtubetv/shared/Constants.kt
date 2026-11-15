@@ -32,8 +32,8 @@ internal object Constants {
         targets = listOf(
             // Tested on two Android TVs (versionCode 732300320).
             AppTarget(version = "7.32.300", minSdk = 24),
-            // Original Google APK verified; patching validated. Runtime testing is still pending.
-            AppTarget(version = "8.02.300", minSdk = 24, isExperimental = true)
+            // Original Google APK verified; patching and LX352 playback/settings tests passed.
+            AppTarget(version = "8.02.300", minSdk = 24)
         )
     )
 }
