@@ -1,3 +1,9 @@
+## [1.5.0-dev.1](https://github.com/jair1c/farotv-patches/compare/v1.4.2...v1.5.0-dev.1) (2026-11-15)
+
+### ✨ New Features
+
+* preparar compatibilidad experimental con YouTube TV 8.02.300 ([868ad2d](https://github.com/jair1c/farotv-patches/commit/868ad2df6e06dba877c6a3d824433268bab0510a))
+
 ## [1.4.2](https://github.com/jair1c/farotv-patches/compare/v1.4.1...v1.4.2) (2026-11-15)
 
 ### 🔧 Improvements
