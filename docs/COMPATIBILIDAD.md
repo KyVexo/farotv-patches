@@ -28,7 +28,7 @@ El 15 de noviembre se actualizó sobre 7.32.300, con la misma firma y sin borrar
 - Configuración muestra FaroTV Parches, ilustraciones y opciones SponsorBlock. Compras y membresías permanece oculta.
 - Acerca de lee correctamente YouTube 8.02.300; la versión de parches de esta compilación local sigue siendo 1.4.2.
 - En 300 segundos de monitorización se mantuvo el PID 4492. La primera muestra registra ShellActivity y las siguientes MainActivity en primer plano. No se detectaron FATAL EXCEPTION, ANR de FaroTV ni errores registrados por TvPatches.
-- No se comprobó un salto efectivo de SponsorBlock, una consulta visible de Return YouTube Dislike ni cada interruptor individual. La variante sin spoof solo tiene validación de parcheo; no se ejecutó en otro TV.
+- La prueba posterior sobre el bundle publicado `1.5.0-dev.1` confirma un salto real de SponsorBlock, el contador visible de Return YouTube Dislike, el diálogo de reinicio y nueve filtros individuales del reproductor. Preguntar (IA) y Súper gracias no aparecieron y siguen sin verificación real. Los detalles constan en [PRUEBAS_1.5.0-dev.1.md](PRUEBAS_1.5.0-dev.1.md). La variante sin spoof solo tiene validación de parcheo; no se ejecutó en otro TV.
 
 Las capturas, los registros y monitor.json quedan fuera del repositorio, en la carpeta local `compatibilidad/prueba-lx352-8.02.300`, porque incluyen datos de la sesión del usuario. No se publica ningún APK.
 
