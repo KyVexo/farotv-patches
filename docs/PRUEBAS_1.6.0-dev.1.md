@@ -15,6 +15,7 @@ Compilación local y publicación en GitHub correctas; la verificación de tradu
 - Se seleccionó English (US) en YouTube > Settings > Language y se confirmó su recarga. La interfaz propia cambió a FaroTV Patches, Block ads, Customize player y los demás ajustes visibles en inglés.
 - Al cambiar Hide Shorts aparece el diálogo Restart required con su mensaje, Restart y Later en inglés. Se probó Later y se restauró la opción activada usando Restart.
 - La tarjeta About muestra FaroTV Patches 1.6.0-dev.1, su descripción completa y View repository en inglés. App version confirma Language: en.
+- Se restauraron Android a `es-PE` y YouTube a Español (Latinoamérica). Los ajustes propios vuelven a FaroTV Parches, Bloquear anuncios y sus descripciones en español; el registro confirma `UI language: es`. La cuenta y los interruptores se conservaron.
 
 Las capturas y registros completos se conservan solo localmente en `compatibilidad/pruebas-funciones`, porque contienen datos de la cuenta.
 
