@@ -1,3 +1,9 @@
+## [1.5.1-dev.1](https://github.com/jair1c/farotv-patches/compare/v1.5.0...v1.5.1-dev.1) (2026-11-15)
+
+### 🚀 Updated App Support
+
+* declarar estable la compatibilidad con YouTube TV 8.02.300 ([7c0070b](https://github.com/jair1c/farotv-patches/commit/7c0070b69495aa78b7b6d7e74d3f47bdda5dde65))
+
 ## [1.5.0](https://github.com/jair1c/farotv-patches/compare/v1.4.2...v1.5.0) (2026-11-15)
 
 ### ✨ New Features
