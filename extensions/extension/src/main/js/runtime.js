@@ -17,6 +17,7 @@
     if (location.hostname !== "www.youtube.com" || window.youtv) return;
 
     var parse = JSON.parse;
+    var t = window.farotvI18n.t;
 
     // ---- log ----------------------------------------------------------------------------------
     // Console output of injected code never reaches logcat. report() briefly sets document.title to
@@ -96,17 +97,17 @@
     function restartDialogCommand() {
         var restart = { commandExecutorCommand: { commands: [CLOSE_POPUP, clientSettingEndpoint(RESTART_SETTING.key, true)] } };
         return { confirmDialogEndpoint: { content: { confirmDialogRenderer: {
-            title: runs("Reinicio necesario"),
-            dialogMessages: [runs("Este cambio se aplica al reiniciar YouTube. ¿Quieres reiniciar ahora?")],
+            title: runs(t("restart.title")),
+            dialogMessages: [runs(t("restart.message"))],
             confirmButton: { buttonRenderer: {
                 style: "STYLE_PRIMARY",
-                text: runs("Reiniciar"),
+                text: runs(t("restart.confirm")),
                 serviceEndpoint: restart,
                 command: restart
             } },
             cancelButton: { buttonRenderer: {
                 style: "STYLE_DEFAULT",
-                text: runs("Más tarde"),
+                text: runs(t("restart.later")),
                 serviceEndpoint: CLOSE_POPUP,
                 command: CLOSE_POPUP
             } },
@@ -167,7 +168,7 @@
     // the first category, and only once the registry is patched (so every switch can be stored).
     // Title of our settings section: "<app name> Parches" ("FaroTV Parches").
     function sectionTitle() {
-        return (window.__youtvBranding || "FaroTV") + " Parches";
+        return t("section.title", { brand: window.__youtvBranding || "FaroTV" });
     }
 
     // Changes to YouTube's own first settings category (sent by the server):
@@ -180,8 +181,8 @@
     // Built every time the Settings page loads: the YouTube version comes from the installed app
     // (TvScripts sets window.__youtubeVersion), the list from the features that are switched on.
     var FEATURE_LABELS = [
-        ["ads", "sin anuncios"], ["shorts", "sin Shorts"], ["sponsorblock", "SponsorBlock"],
-        ["ryd", "Return YouTube Dislike"], ["premium-promos", "sin promociones de Premium"]
+        ["ads", "about.ads"], ["shorts", "about.shorts"], ["sponsorblock", "about.sponsorblock"],
+        ["ryd", "about.ryd"], ["premium-promos", "about.premium-promos"]
     ];
 
     function aboutSummary() {
@@ -190,12 +191,10 @@
                 if (features[i].id === pair[0]) return features[i].enabled();
             }
             return false;
-        }).map(function (pair) { return pair[1]; });
-        var list = on.length > 1 ? on.slice(0, -1).join(", ") + " y " + on[on.length - 1] : (on[0] || "");
+        }).map(function (pair) { return t(pair[1]); });
+        var list = on.length > 1 ? on.slice(0, -1).join(", ") + t("list.and") + on[on.length - 1] : (on[0] || "");
         var youtube = window.__youtubeVersion ? "YouTube " + window.__youtubeVersion : "YouTube";
-        return "Android TV · Parches de Morphe para " + youtube + (list ? ": " + list + "." : ".") +
-            " Creado por Gabriel Jair. YouTube, los videos, imágenes y marcas pertenecen a Google" +
-            " y a sus respectivos titulares.";
+        return t("about.summary", { youtube: youtube, features: list ? ": " + list + "." : "." });
     }
 
     function adjustAbout(category) {
@@ -218,11 +217,11 @@
         var repository = { confirmDialogEndpoint: { content: { confirmDialogRenderer: {
             title: runs(section + version),
             dialogMessages: [
-                runs("Código, novedades y descargas:"),
+                runs(t("about.repository")),
                 runs("github.com/jair1c/farotv-patches"),
-                runs("También está en morphe-patches.software, para instalarlo con Morphe Manager.")
+                runs(t("about.manager"))
             ],
-            confirmButton: { buttonRenderer: { style: "STYLE_PRIMARY", text: runs("Cerrar"),
+            confirmButton: { buttonRenderer: { style: "STYLE_PRIMARY", text: runs(t("common.close")),
                 serviceEndpoint: CLOSE_POPUP, command: CLOSE_POPUP } }
         } } } };
         function button(text) {
@@ -232,7 +231,7 @@
             { settingActionRenderer: {
                 itemId: "FAROTV_CREATOR",
                 title: runs("Gabriel Jair"),
-                summary: runs("Creador de " + section + ". YouTube. A tu manera."),
+                summary: runs(t("about.creator", { section: section })),
                 thumbnail: { thumbnails: [{ url: GSTATIC_PICTURE + "creator" }] },
                 serviceEndpoint: repository,
                 actionButton: button("github.com/jair1c")
@@ -243,7 +242,7 @@
                 summary: runs(aboutSummary()),
                 thumbnail: { thumbnails: [{ url: GSTATIC_PICTURE + "brand" }] },
                 serviceEndpoint: repository,
-                actionButton: button("Ver el repositorio")
+                actionButton: button(t("about.open"))
             } });
     }
 
@@ -304,8 +303,8 @@
             items: settings.map(function (setting) {
                 return { settingBooleanRenderer: {
                     thumbnail: settingThumbnail(setting),
-                    title: runs(setting.title),
-                    summary: runs(setting.summary || ""),
+                    title: runs(setting.titleKey ? t(setting.titleKey) : setting.title),
+                    summary: runs(setting.summaryKey ? t(setting.summaryKey) : (setting.summary || "")),
                     enableServiceEndpoint: settingCommand(setting, true),
                     disableServiceEndpoint: settingCommand(setting, false),
                     itemId: setting.key
@@ -332,6 +331,8 @@
             feature: id,
             key: settingKey(id),
             title: definition.name || id,
+            titleKey: definition.nameKey,
+            summaryKey: definition.summaryKey,
             summary: definition.summary,
             defaultValue: definition.defaultEnabled !== false,
             restart: !!definition.restart
@@ -344,6 +345,8 @@
                 extra: extra.key,
                 key: settingKey(id, extra.key),
                 title: extra.title || extra.key,
+                titleKey: extra.titleKey,
+                summaryKey: extra.summaryKey,
                 summary: extra.summary,
                 defaultValue: !!extra.default,
                 restart: !!extra.restart
@@ -419,6 +422,8 @@
 
     window.youtv = {
         report: report,
+        t: t,
+        locale: window.farotvI18n.locale,
         rawParse: parse,
         feature: defineFeature,
         request: request,
@@ -440,4 +445,5 @@
         }
     };
     report("runtime loaded on " + location.href);
+    window.farotvI18n.onChange(function (language) { report("@locale " + language); });
 })();

@@ -15,6 +15,8 @@ Consulta la [matriz de compatibilidad](docs/COMPATIBILIDAD.md) para conocer los 
 
 ## ✨ Qué hace
 
+- **Idiomas:** los textos propios siguen el idioma de YouTube TV, con español e inglés incluidos y respaldo en inglés para otros idiomas. [Cómo añadir traducciones](docs/TRADUCCIONES.md).
+
 - **MicroG-RE**: la app funciona sin Google Play Services y se instala junto al YouTube original (otro nombre de
   paquete). Inicio de sesión con código de activación (yt.be/activate).
 - **Sección "FaroTV Parches" dentro de los Ajustes de YouTube** (y se oculta "Compras y membresías"), con interruptores:

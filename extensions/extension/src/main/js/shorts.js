@@ -36,8 +36,8 @@
 
     youtv.feature({
         id: "shorts",
-        name: "Ocultar Shorts",
-        summary: "Quita las filas de Shorts y la entrada Shorts del menú (el menú cambia al reiniciar la app)",
+        nameKey: "feature.shorts.name",
+        summaryKey: "feature.shorts.summary",
         defaultEnabled: true,
         restart: true,
         onResponse: function (response, settings, text) {

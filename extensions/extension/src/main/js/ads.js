@@ -56,8 +56,8 @@
 
     youtv.feature({
         id: "ads",
-        name: "Bloquear anuncios",
-        summary: "Quita los anuncios de video y los videos patrocinados de Inicio",
+        nameKey: "feature.ads.name",
+        summaryKey: "feature.ads.summary",
         defaultEnabled: true,
         onResponse: function (response, settings, text) {
             if (stripAds(response)) youtv.report("ads: removed ad schedule");
