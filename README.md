@@ -9,6 +9,10 @@ Parches no oficiales para **YouTube en Android TV** (`com.google.android.youtube
 
 FaroTV no es un producto de Google, YouTube ni del proyecto Morphe.
 
+En esta rama se está validando **YouTube TV 8.02.300 (armeabi-v7a)**. Su compatibilidad se declara experimental:
+el parcheo pasa las comprobaciones, pero falta la prueba de reproducción y ajustes en un televisor.
+La referencia validada sigue siendo **7.32.300**. Consulta la [matriz de compatibilidad](docs/COMPATIBILIDAD.md).
+
 ## ✨ Qué hace
 
 - **MicroG-RE**: la app funciona sin Google Play Services y se instala junto al YouTube original (otro nombre de
