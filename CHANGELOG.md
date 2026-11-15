@@ -1,3 +1,9 @@
+## [1.6.0-dev.1](https://github.com/jair1c/farotv-patches/compare/v1.5.1...v1.6.0-dev.1) (2026-11-15)
+
+### ✨ New Features
+
+* traducir FaroTV al idioma de YouTube con catálogos español e inglés ([860ce74](https://github.com/jair1c/farotv-patches/commit/860ce74bdc9d3e079f334feec01f72f14aa84fff))
+
 ## [1.5.1](https://github.com/jair1c/farotv-patches/compare/v1.5.0...v1.5.1) (2026-11-15)
 
 ### 🚀 Updated App Support

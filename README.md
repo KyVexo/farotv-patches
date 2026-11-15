@@ -15,6 +15,8 @@ Consulta la [matriz de compatibilidad](docs/COMPATIBILIDAD.md) para conocer los 
 
 ## ✨ Qué hace
 
+- **Idiomas:** los textos propios siguen el idioma de YouTube TV, con español e inglés incluidos y respaldo en inglés para otros idiomas. [Cómo añadir traducciones](docs/TRADUCCIONES.md).
+
 - **MicroG-RE**: la app funciona sin Google Play Services y se instala junto al YouTube original (otro nombre de
   paquete). Inicio de sesión con código de activación (yt.be/activate).
 - **Sección "FaroTV Parches" dentro de los Ajustes de YouTube** (y se oculta "Compras y membresías"), con interruptores:
@@ -56,7 +58,7 @@ Este repositorio **no** distribuye el APK de YouTube, ni original ni parcheado.
 ## 🩹 Lista de parches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.5.1](https://github.com/jair1c/farotv-patches/releases/tag/v1.5.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.6.0-dev.1](https://github.com/jair1c/farotv-patches/releases/tag/v1.6.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 YouTube for Android TV&nbsp;&nbsp;•&nbsp;&nbsp;6 patches</summary>
 <br>

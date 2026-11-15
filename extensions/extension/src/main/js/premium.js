@@ -57,8 +57,8 @@
 
     youtv.feature({
         id: "premium-promos",
-        name: "Ocultar promociones de Premium",
-        summary: "Quita los avisos para probar o comprar YouTube Premium",
+        nameKey: "feature.premium-promos.name",
+        summaryKey: "feature.premium-promos.summary",
         defaultEnabled: true,
         onResponse: function (response, settings, text) {
             if (!youtv.mentions(text, MARKERS)) return;
