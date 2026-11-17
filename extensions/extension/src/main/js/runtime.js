@@ -376,24 +376,34 @@
     // makes them (TvScripts.onTitle sees "@req <id> <url>", only for an allow-list of hosts) and
     // hands the answer back through youtv.deliver(id, status, body).
     var pending = {};
+    var pendingUrls = Object.create(null);
     var nextRequest = 1;
 
     function request(url, callback) {
+        var existing = pendingUrls[url];
+        if (existing && pending[existing]) {
+            pending[existing].callbacks.push(callback);
+            return existing;
+        }
         var id = nextRequest++;
-        pending[id] = callback;
+        var entry = { url: url, callbacks: [callback], timer: null };
+        pending[id] = entry;
+        pendingUrls[url] = id;
+        entry.timer = setTimeout(function () { deliver(id, 0, ""); }, 60000);
         report("@req " + id + " " + url);
-        setTimeout(function () { delete pending[id]; }, 60000);
+        return id;
     }
 
     function deliver(id, status, body) {
-        var callback = pending[id];
+        var entry = pending[id];
+        if (!entry) return;
         delete pending[id];
-        if (!callback) return;
-        try {
-            callback(status, body);
-        } catch (e) {
-            report("request " + id + " callback failed: " + e);
-        }
+        delete pendingUrls[entry.url];
+        clearTimeout(entry.timer);
+        entry.callbacks.forEach(function (callback) {
+            try { callback(status, body); }
+            catch (e) { report("request " + id + " callback failed: " + e); }
+        });
     }
 
     // ---- response hook ------------------------------------------------------------------------

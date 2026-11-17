@@ -10,11 +10,14 @@ const catalogs = Object.fromEntries(fs.readdirSync(path.join(main, 'locales')).f
 function page(language = 'es-PE', browser = 'en-US') {
     const intervals = [];
     const styleWrites = [];
+    const timers = new Map();
+    let nextTimer = 1;
     const context = vm.createContext({
         __farotvTranslations: structuredClone(catalogs),
         document: { documentElement: { lang: language }, title: 'YouTube', adoptedStyleSheets: [], querySelector: () => null },
         navigator: { language: browser }, location: { hostname: 'www.youtube.com', href: 'https://www.youtube.com/tv', hash: '' },
-        setTimeout: () => 0, clearTimeout: () => {}, setInterval: (fn, ms) => { intervals.push({ fn, ms }); return 0; },
+        setTimeout: (fn, ms) => { const id = nextTimer++; timers.set(id, { fn, ms }); return id; },
+        clearTimeout: id => timers.delete(id), setInterval: (fn, ms) => { intervals.push({ fn, ms }); return 0; },
         CSSStyleSheet: class { replaceSync(css) { styleWrites.push(css); } }, Intl
     });
     vm.runInContext(`window = this; class Storage { constructor() { this.data = {}; }
@@ -26,8 +29,82 @@ function page(language = 'es-PE', browser = 'en-US') {
     }
     context.intervals = intervals;
     context.styleWrites = styleWrites;
+    context.timers = timers;
     return context;
 }
+
+test('identical in-flight requests share one request and clear their timeout on delivery', () => {
+    const p = page('en');
+    const results = [];
+    const ids = Array.from({ length: 100 }, () => p.youtv.request('https://returnyoutubedislikeapi.com/votes?videoId=dQw4w9WgXcQ', (status, body) => results.push([status, body])));
+    assert.equal(new Set(ids).size, 1);
+    assert.equal([...p.timers.values()].filter(t => t.ms === 60000).length, 1);
+    const other = p.youtv.request('https://sponsor.ajay.app/api/skipSegments?videoID=dQw4w9WgXcQ', () => {});
+    assert.notEqual(other, ids[0]);
+    p.youtv.deliver(ids[0], 200, '{"dislikes":7}');
+    assert.equal(results.length, 100);
+    assert.ok(results.every(([status, body]) => status === 200 && body === '{"dislikes":7}'));
+    p.youtv.deliver(ids[0], 200, '{}');
+    assert.equal(results.length, 100);
+    p.youtv.deliver(other, 404, '');
+    assert.equal([...p.timers.values()].filter(t => t.ms === 60000).length, 0);
+});
+
+test('request timeouts allow retry, ignore late replies and isolate callback errors', () => {
+    const p = page('en');
+    const received = [];
+    const url = 'https://returnyoutubedislikeapi.com/votes?videoId=dQw4w9WgXcQ';
+    const expired = p.youtv.request(url, status => received.push(status));
+    [...p.timers.values()].find(t => t.ms === 60000).fn();
+    assert.deepEqual(received, [0]);
+    const retry = p.youtv.request(url, () => { throw new Error('consumer'); });
+    assert.notEqual(expired, retry);
+    p.youtv.request(url, status => received.push(status));
+    p.youtv.deliver(expired, 200, '{}');
+    assert.deepEqual(received, [0]);
+    p.youtv.deliver(retry, 503, '');
+    assert.deepEqual(received, [0, 503]);
+    assert.equal([...p.timers.values()].filter(t => t.ms === 60000).length, 0);
+});
+
+test('repeated RYD player responses share the native request and all receive the count', () => {
+    const p = page('en');
+    const responses = [];
+    p.responseText = '{"transportControls":{"transportControlsRenderer":{"promotedActions":[{"button":{"likeButtonRenderer":{"target":{"videoId":"dQw4w9WgXcQ"}}}}]}}}';
+    for (let i = 0; i < 100; i++) responses.push(vm.runInContext('JSON.parse(responseText)', p));
+    assert.equal([...p.timers.values()].filter(t => t.ms === 60000).length, 1);
+    p.youtv.deliver(1, 200, '{"dislikes":521904}');
+    for (const response of responses) {
+        assert.equal(response.transportControls.transportControlsRenderer.promotedActions[0].button.likeButtonRenderer.dislikeCountText.simpleText, '521.9K');
+    }
+    assert.equal([...p.timers.values()].filter(t => t.ms === 60000).length, 0);
+});
+
+test('RYD cache expires, evicts old videos and reuses number formatters by language', () => {
+    const p = page('en');
+    let requests = 0;
+    let formatters = 0;
+    const NativeNumberFormat = Intl.NumberFormat;
+    p.Intl = { NumberFormat: function (...args) { formatters++; return new NativeNumberFormat(...args); } };
+    p.mockNow = 0;
+    vm.runInContext('Date.now = () => mockNow;', p);
+    p.youtv.request = (url, done) => { requests++; done(200, '{"dislikes":521904}'); };
+    function video(id) {
+        p.responseText = JSON.stringify({ transportControls: { transportControlsRenderer: { promotedActions: [{ button: { likeButtonRenderer: { target: { videoId: id } } } }] } } });
+        return vm.runInContext('JSON.parse(responseText)', p);
+    }
+    video('dQw4w9WgXcQ'); video('dQw4w9WgXcQ');
+    assert.equal(requests, 1); assert.equal(formatters, 1);
+    p.document.documentElement.lang = 'es';
+    const translated = video('dQw4w9WgXcQ').transportControls.transportControlsRenderer.promotedActions[0].button.likeButtonRenderer;
+    assert.equal(translated.dislikeCountText.simpleText.replace(/\s/g, ' '), '521,9 mil');
+    assert.equal(formatters, 2); assert.equal(requests, 1);
+    p.mockNow = 600001; video('dQw4w9WgXcQ'); assert.equal(requests, 2);
+    for (let i = 0; i < 100; i++) video(String(i).padStart(11, '0'));
+    assert.equal(requests, 102);
+    video('dQw4w9WgXcQ'); assert.equal(requests, 103);
+    assert.equal(formatters, 2);
+});
 
 test('repeated player responses avoid redundant CSS writes and toggles still apply immediately', () => {
     const p = page('es');
