@@ -62,3 +62,12 @@ En el LX352 se aplicó e instaló dev.7 con diagnóstico y se pasó por inicio, 
 - SponsorBlock conserva durante cinco minutos hasta 50 respuestas por URL (vídeo y categorías). También conserva el resultado 404; los fallos de conexión y los errores del servidor permiten reintentar. Cada reproducción reconstruye los segmentos y sus indicadores de salto, sin persistir datos en disco.
 - Comprobación automatizada: 21 pruebas, incluyendo cambio de categorías, caducidad, expulsión y reintento de errores. Esto demuestra menos solicitudes al volver al mismo vídeo; no demuestra una reducción general de la latencia de YouTube ni de las tareas largas del motor.
 - Pendiente: atribuir las tareas largas restantes, incluidos los inicializadores de scripts, y comparar tiempos en el televisor. No se altera la caché de respuestas privadas de YouTube ni los enlaces de reproducción.
+
+
+### Publicación y comprobación de dev.8
+
+Publicado `v1.7.0-dev.8` como preliminar. La ejecución de publicación 44007696100 completó pruebas, compilación y atestación. Una ejecución anterior concurrente fue rechazada al intentar escribir una rama que ya había avanzado; la siguiente publicó correctamente la etiqueta y el paquete.
+
+El paquete se aplicó sin fallos a YouTube TV 8.02.300 y se instaló como actualización en el LX352. Tras treinta segundos: runtime cargado, 26 ajustes registrados, sin excepciones fatales y sin resúmenes periódicos de diagnóstico en la muestra. La captura confirmó la pantalla de selección de perfil. Es una comprobación de arranque, no una comparación de fluidez ni una prueba prolongada de reproducción.
+
+El banco reproducible `node tools/benchmark-runtime.cjs v1.7.0-dev.7` registra 10000 decodificaciones JSON antes y una después para 10000 lecturas de un ajuste sin cambios. Sigue habiendo 10000 consultas al almacenamiento, necesarias en este diseño para detectar los cambios nativos. Las pruebas comprueban también que una reproducción repetida puede volver a saltar los segmentos cacheados.
