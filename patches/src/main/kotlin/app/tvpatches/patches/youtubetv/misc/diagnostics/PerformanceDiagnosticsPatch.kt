@@ -20,5 +20,5 @@ val performanceDiagnosticsPatch = bytecodePatch(
 ) {
     compatibleWith(COMPATIBILITY_YOUTUBE_TV)
     dependsOn(youTvScriptsPatch)
-    execute { DiagnosticsEnabledFingerprint.method.returnEarly(1) }
+    execute { DiagnosticsEnabledFingerprint.method.returnEarly(true) }
 }
