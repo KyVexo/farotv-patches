@@ -110,3 +110,15 @@ Se mantiene síncrono porque modifica la respuesta antes de que YouTube la consu
 Las 27 pruebas incluyen comparación con dev.9 en 150 árboles generados, renderers directos, ventanas emergentes, arrays anidados y dispersos, límites de profundidad y expulsión de la caché. Se añaden al flujo de publicación.
 
 `node tools/benchmark-premium.cjs v1.7.0-dev.9` usa 10000 elementos sintéticos con promociones alternas, 15 repeticiones y contadores instrumentados. En esta ejecución de PC: mediana 98,51 ms antes y 31,78 ms después; comprobaciones de expresión regular 525015 frente a 2 y operaciones `splice` 75000 frente a 0. Es una carga de estrés artificial, no una respuesta representativa ni una predicción de FPS, tiempos en el LX352 o latencia de red. Falta la comprobación real en TV.
+
+
+### Dev.10: publicación y datos reales
+
+Publicado `v1.7.0-dev.10` como preliminar. La ejecución 44011055114 completó las 27 pruebas, compilación y atestación. Se aplicaron sin fallos las variantes de diagnóstico y normal sobre YouTube TV 8.02.300.
+
+En el LX352, la captura inicial confirmó el inicio cargado; después se abrió el primer vídeo y una segunda captura confirmó reproducción. La primera ventana registró 67 llamadas al filtro Premium, 17 ms acumulados y máximo 9,8 ms. La ventana de reproducción registró 23 llamadas, 34,1 ms acumulados y máximo 26,5 ms. Frente al máximo anterior de 26,7 ms, estos datos **no demuestran una reducción de latencia en el TV**: no son respuestas equivalentes y la diferencia es mínima. La mejora comprobada es la eliminación de comprobaciones repetidas y desplazamientos en la prueba controlada; no se promete una mejora general de fluidez.
+
+La página completa todavía registró tareas largas de hasta 875 ms en el inicio y 558 ms en reproducción. No hubo excepciones fatales en el registro muestreado. El recorrido completo de las respuestas queda como siguiente aspecto por investigar, sin asumir todavía que explique esas tareas globales. Las métricas y capturas están guardadas en `diagnostico-dev10`.
+
+
+Se dejó instalado dev.10 normal en el LX352, sin el parche de diagnóstico. La muestra de treinta segundos confirma runtime y 26 ajustes registrados, sin resúmenes periódicos y sin excepciones fatales. Los resultados se guardaron en `normal-dev10`.
