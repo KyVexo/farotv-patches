@@ -1,3 +1,9 @@
+## [1.7.0-dev.7](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.6...v1.7.0-dev.7) (2026-11-17)
+
+### 🔧 Improvements
+
+* **icons:** evitar hojas e ilustraciones duplicadas al reinyectar ([b608a8c](https://github.com/jair1c/farotv-patches/commit/b608a8c3a7590c71e5e516328eca758e18cdddac))
+
 ## [1.7.0-dev.6](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.5...v1.7.0-dev.6) (2026-11-17)
 
 ### 🐛 Bug Fixes

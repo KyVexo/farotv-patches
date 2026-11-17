@@ -1,8 +1,8 @@
 {
-  "created_at": "2026-11-17T02:16:15",
-  "description": "## [1.7.0-dev.6](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.5...v1.7.0-dev.6) (2026-11-17)\n\n### 🐛 Bug Fixes\n\n* **diagnostics:** activar el registro con un retorno booleano ([9379d4b](https://github.com/jair1c/farotv-patches/commit/9379d4b9026308aa881b468661ced2b7c435dcd4))",
-  "download_url": "https://github.com/jair1c/farotv-patches/releases/download/v1.7.0-dev.6/patches-1.7.0-dev.6.mpp",
+  "created_at": "2026-11-17T02:29:03",
+  "description": "## [1.7.0-dev.7](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.6...v1.7.0-dev.7) (2026-11-17)\n\n### 🔧 Improvements\n\n* **icons:** evitar hojas e ilustraciones duplicadas al reinyectar ([b608a8c](https://github.com/jair1c/farotv-patches/commit/b608a8c3a7590c71e5e516328eca758e18cdddac))",
+  "download_url": "https://github.com/jair1c/farotv-patches/releases/download/v1.7.0-dev.7/patches-1.7.0-dev.7.mpp",
   "signature_download_url": "",
-  "version": "1.7.0-dev.6",
+  "version": "1.7.0-dev.7",
   "public_key": "B+w9LCwCheqTn0XZycE7F2wZPc5CBoaYxCExWOrB0sg="
 }
