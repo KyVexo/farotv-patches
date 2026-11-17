@@ -87,6 +87,7 @@
             notice.className = "farotv-skip-notice";
         }
         if (!notice.parentNode) document.body.appendChild(notice);
+        notice.dir = window.farotvI18n.direction();
         notice.textContent = "";
         notice.appendChild(document.createTextNode(youtv.t("sponsor.skipped")));
         var b = document.createElement("b");

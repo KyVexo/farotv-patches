@@ -55,7 +55,7 @@ test('dislike count formatting and accessibility follow the current language', (
 });
 
 test('SponsorBlock keeps skipping behavior and translates the visible notice', () => {
-    for (const [language, prefix, label] of [['en', 'Skipped: ', 'sponsorship'], ['es', 'Se omitió: ', 'patrocinio']]) {
+    for (const [language, prefix, label] of [['en', 'Skipped: ', 'sponsorship'], ['es', 'Se omitió: ', 'patrocinio'], ['ar', catalogs.ar['sponsor.skipped'], catalogs.ar['sponsor.sponsor.label']]]) {
         const p = page(language);
         const video = { paused: false, duration: 300, currentTime: 22 };
         const body = { children: [], appendChild(node) { this.children.push(node); node.parentNode = this; } };
@@ -69,7 +69,25 @@ test('SponsorBlock keeps skipping behavior and translates the visible notice', (
         assert.equal(video.currentTime, 72.8);
         assert.equal(body.children[0].children[0].textContent, prefix);
         assert.equal(body.children[0].children[1].textContent, label);
+        assert.equal(body.children[0].dir, language === 'ar' ? 'rtl' : 'ltr');
     }
+});
+
+test('Arabic regional settings, restart and direction preserve saved settings', () => {
+    const p = page('ar-SA', 'en-US');
+    assert.equal(p.youtv.locale(), 'ar');
+    assert.equal(p.farotvI18n.direction(), 'rtl');
+    assert.ok(catalogs.ar['microg.missing.message'].includes('\n\n'));
+    const arabic = settings(p).items[1].settingCategoryCollectionRenderer;
+    assert.equal(arabic.title.runs[0].text, catalogs.ar['section.title'].replace('{brand}', 'FaroTV'));
+    assert.equal(arabic.items.length, 26);
+    const shorts = arabic.items.find(x => x.settingBooleanRenderer.itemId === 'YOUTV_SHORTS').settingBooleanRenderer;
+    const popup = shorts.enableServiceEndpoint.commandExecutorCommand.commands[1].confirmDialogEndpoint.content.confirmDialogRenderer;
+    assert.equal(popup.confirmButton.buttonRenderer.text.runs[0].text, catalogs.ar['restart.confirm']);
+    p.document.documentElement.lang = 'en';
+    assert.equal(p.farotvI18n.direction(), 'ltr');
+    const english = settings(p).items[1].settingCategoryCollectionRenderer;
+    assert.deepEqual(Array.from(arabic.items, x => x.settingBooleanRenderer.itemId), Array.from(english.items, x => x.settingBooleanRenderer.itemId));
 });
 
 test('app language wins over browser; regional locales and English fallback work', () => {
