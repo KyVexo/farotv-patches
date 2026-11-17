@@ -1,3 +1,9 @@
+## [1.7.0-dev.8](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.7...v1.7.0-dev.8) (2026-11-17)
+
+### 🔧 Improvements
+
+* reutilizar ajustes y segmentos de SponsorBlock sin solicitudes repetidas ([a04030c](https://github.com/jair1c/farotv-patches/commit/a04030c44ba08c42ae23a539b6b3e854838c6f30))
+
 ## [1.7.0-dev.7](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.6...v1.7.0-dev.7) (2026-11-17)
 
 ### 🔧 Improvements
