@@ -51,6 +51,37 @@ test('performance diagnostics are inactive by default', () => {
     assert.equal(p.youtv.performanceSnapshot(), null);
 });
 
+test('reinjecting icons keeps one sheet and reuses the image definitions', () => {
+    const p = page('en');
+    const source = fs.readFileSync(path.join(main, 'js/icons.js'), 'utf8');
+    const initial = p.document.adoptedStyleSheets.length;
+    vm.runInContext(source, p);
+    const first = p.__farotvIconsSheet;
+    const urls = p.youtv.iconUrls;
+    for (let i = 0; i < 100; i++) vm.runInContext(source, p);
+    assert.equal(p.document.adoptedStyleSheets.length, initial + 1);
+    assert.equal(p.__farotvIconsSheet, first);
+    assert.equal(p.youtv.iconUrls, urls);
+    assert.ok(urls.length > 0);
+    p.document.adoptedStyleSheets = p.document.adoptedStyleSheets.filter(sheet => sheet !== first);
+    vm.runInContext(source, p);
+    assert.notEqual(p.__farotvIconsSheet, first);
+    assert.equal(p.document.adoptedStyleSheets.length, initial + 1);
+});
+
+test('icons retry after a stylesheet failure instead of marking a failed load as complete', () => {
+    const p = page('en');
+    let attempts = 0;
+    p.CSSStyleSheet = class { replaceSync() { if (++attempts === 1) throw new Error('not ready'); } };
+    const source = fs.readFileSync(path.join(main, 'js/icons.js'), 'utf8');
+    assert.doesNotThrow(() => vm.runInContext(source, p));
+    assert.equal(p.__farotvIconsSheet, undefined);
+    vm.runInContext(source, p);
+    assert.ok(p.__farotvIconsSheet);
+    vm.runInContext(source, p);
+    assert.equal(attempts, 2);
+});
+
 test('optional diagnostics aggregate durations without recording URLs or content and reset each window', () => {
     const p = page('en', 'en-US', true);
     const reports = [];

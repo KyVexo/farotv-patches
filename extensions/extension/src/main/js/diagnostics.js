@@ -48,6 +48,15 @@
 
     setInterval(function () {
         var snapshot = { supported: supported, runtime: youtv.performanceSnapshot(), resources: resources, longTasks: longTasks };
+        try {
+            var sheets = document.adoptedStyleSheets;
+            var icons = 0;
+            for (var i = 0; i < sheets.length; i++) {
+                var rule = sheets[i].cssRules && sheets[i].cssRules[0];
+                if (rule && rule.selectorText && rule.selectorText.indexOf("farotv=ads") !== -1) icons++;
+            }
+            snapshot.styles = { adopted: sheets.length, icons: icons };
+        } catch (ignored) {}
         resources = {}; longTasks = { count: 0, ms: 0, maxMs: 0 };
         youtv.report("perf " + JSON.stringify(snapshot, function (key, value) {
             return typeof value === "number" ? Math.round(value * 100) / 100 : value;
