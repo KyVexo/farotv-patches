@@ -1,3 +1,9 @@
+## [1.7.0-dev.5](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.4...v1.7.0-dev.5) (2026-11-17)
+
+### ✨ New Features
+
+* **diagnostics:** medir recursos, tareas largas y coste de parches ([9398549](https://github.com/jair1c/farotv-patches/commit/93985495268e081591deaed91626d16b8ae86c81))
+
 ## [1.7.0-dev.4](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.3...v1.7.0-dev.4) (2026-11-17)
 
 ### 🔧 Improvements
