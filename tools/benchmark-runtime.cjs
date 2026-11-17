@@ -68,3 +68,21 @@ function icons(ref) {
 }
 console.log(JSON.stringify({ anterior: { referencia: baseline, ...measure(baseline), iconos: icons(baseline) },
                             actual: { ...measure(null), iconos: icons(null) } }, null, 2));
+
+
+function settingDecodes(ref) {
+    const file = sourcePath + 'js/runtime.js';
+    const source = ref ? execFileSync('git', ['show', ref + ':' + file], { cwd: root, encoding: 'utf8' })
+                       : fs.readFileSync(path.join(root, file), 'utf8');
+    let decodes = 0, reads = 0;
+    const context = vm.createContext({
+        parse: value => { decodes++; return JSON.parse(value); },
+        localStorage: { getItem: () => { reads++; return '{"data":true}'; } }
+    });
+    const start = source.indexOf('    function readSetting(setting)');
+    const end = source.indexOf('    function registerSetting', start);
+    vm.runInContext('var STORAGE_PREFIX="yt.leanback.default::"; var decodedSettings=Object.create(null);' + source.slice(start, end), context);
+    vm.runInContext('for(var i=0;i<10000;i++) { if(!readSetting({key:"YOUTV_ADS",defaultValue:false})) throw Error("Incorrect setting"); }', context);
+    return { lecturas: reads, decodificacionesJSON: decodes };
+}
+console.log(JSON.stringify({ ajustes: { anterior: settingDecodes(baseline), actual: settingDecodes(null) } }, null, 2));

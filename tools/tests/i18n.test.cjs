@@ -250,6 +250,12 @@ test('SponsorBlock keeps skipping behavior and translates the visible notice', (
         assert.equal(body.children[0].children[0].textContent, prefix);
         assert.equal(body.children[0].children[1].textContent, label);
         assert.equal(body.children[0].dir, language === 'ar' ? 'rtl' : 'ltr');
+        p.location.hash = ''; p.intervals.find(x => x.ms === 400).fn();
+        p.youtv.request = () => { throw Error('A cached replay must not access the network'); };
+        p.location.hash = '#/watch?v=edkymo3w4Ms'; video.currentTime = 22;
+        p.intervals.find(x => x.ms === 400).fn();
+        assert.equal(video.currentTime, 72.8);
+
     }
 });
 
