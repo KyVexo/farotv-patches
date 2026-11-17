@@ -57,6 +57,11 @@
             }
             snapshot.styles = { adopted: sheets.length, icons: icons };
         } catch (ignored) {}
+        if (window.__farotvBrandingPerformance) {
+            var branding = window.__farotvBrandingPerformance;
+            snapshot.branding = { passes: branding.passes, slices: branding.slices,
+                rules: branding.rules, ms: branding.ms, maxSliceMs: branding.maxSliceMs };
+        }
         resources = {}; longTasks = { count: 0, ms: 0, maxMs: 0 };
         youtv.report("perf " + JSON.stringify(snapshot, function (key, value) {
             return typeof value === "number" ? Math.round(value * 100) / 100 : value;

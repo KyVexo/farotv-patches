@@ -366,3 +366,54 @@ test('SponsorBlock reuses bounded expiring responses by video and categories wit
     for(let i=0;i<50;i++) { leave(); visit(String(i).padStart(11,'0')); calls.at(-1).callback(404, ''); }
     leave(); visit('abcdefghijk'); assert.equal(calls.length, 55);
 });
+
+
+test('branding yields between CSS scan slices and preserves rule order and later sheets', () => {
+    const p = page('es', 'en', true);
+    p.__youtvBranding = 'FaroTV';
+    function rule(n) {
+        return { selectorText: '.rule' + n, style: {0:'color',length:1,cssText:'color: rgb(255, 0, 0)',getPropertyValue: () => 'rgb(255, 0, 0)' } };
+    }
+    const first = Array.from({length: 200}, (_,i) => rule(i));
+    p.document.styleSheets = [{cssRules: first}, {cssRules: [{cssRules:[rule(200)]}]}];
+    const source = fs.readFileSync(path.join(main,'js/branding.js'),'utf8');
+    vm.runInContext(source,p);
+    assert.equal(p.__farotvBrandingPerformance.rules, 0, 'the initial scan must yield');
+    function flush() {
+        let count=0;
+        while(true) {
+            const timer = [...p.timers].find(([,t]) => t.ms === 0);
+            if(!timer) return;
+            p.timers.delete(timer[0]); timer[1].fn();
+            if(++count>10000) throw Error('Unbounded scan');
+        }
+    }
+    flush();
+    assert.equal(p.__farotvBrandingPerformance.rules, 202);
+    assert.ok(p.__farotvBrandingPerformance.slices > 1);
+    const css=p.styleWrites.find(s=>s.includes('.rule200'));
+    assert.ok(css.indexOf('.rule0 ') < css.indexOf('.rule199 '));
+    assert.ok(css.indexOf('.rule199 ') < css.indexOf('.rule200 '));
+    const passes=p.__farotvBrandingPerformance.passes;
+    const poll=p.intervals.find(t=>t.ms===2000).fn;
+    poll(); flush(); assert.equal(p.__farotvBrandingPerformance.passes,passes);
+    p.document.styleSheets.push({cssRules:[rule(201)]});
+    poll(); flush();
+    assert.equal(p.__farotvBrandingPerformance.passes,passes+1);
+    assert.ok(p.styleWrites.at(-1).includes('.rule201'));
+    assert.equal(p.styleWrites.at(-1).match(/\.rule0 /g).length,1);
+    vm.runInContext(source,p); flush();
+    assert.equal(p.__farotvBrandingPerformance.passes,passes+1);
+});
+
+test('branding slices fall back without performance API and ignore unreadable sheets', () => {
+    const p=page(); p.__youtvBranding='FaroTV'; p.performance=undefined;
+    p.document.styleSheets=[{get cssRules(){throw Error('cross origin');}}, {cssRules:[]}];
+    vm.runInContext(fs.readFileSync(path.join(main,'js/branding.js'),'utf8'),p);
+    for(let i=0;i<100;i++) {
+        const timer=[...p.timers].find(([,t])=>t.ms===0);
+        if(!timer)break;
+        p.timers.delete(timer[0]); assert.doesNotThrow(()=>timer[1].fn());
+    }
+    assert.equal(p.__farotvBrandingPerformance,undefined);
+});

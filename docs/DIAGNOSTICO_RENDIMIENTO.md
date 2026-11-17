@@ -71,3 +71,14 @@ Publicado `v1.7.0-dev.8` como preliminar. La ejecución de publicación 44007696
 El paquete se aplicó sin fallos a YouTube TV 8.02.300 y se instaló como actualización en el LX352. Tras treinta segundos: runtime cargado, 26 ajustes registrados, sin excepciones fatales y sin resúmenes periódicos de diagnóstico en la muestra. La captura confirmó la pantalla de selección de perfil. Es una comprobación de arranque, no una comparación de fluidez ni una prueba prolongada de reproducción.
 
 El banco reproducible `node tools/benchmark-runtime.cjs v1.7.0-dev.7` registra 10000 decodificaciones JSON antes y una después para 10000 lecturas de un ajuste sin cambios. Sigue habiendo 10000 consultas al almacenamiento, necesarias en este diseño para detectar los cambios nativos. Las pruebas comprueban también que una reproducción repetida puede volver a saltar los segmentos cacheados.
+
+
+## Recoloreado de estilos por bloques
+
+El recorrido de reglas CSS del branding se ejecutaba sin ceder el hilo cuando aparecían nuevas hojas. Ya se evitaban recorridos mientras no cambiaba el número de hojas; no era un escaneo completo cada dos segundos.
+
+La siguiente iteración agenda el recorrido con temporizadores, con un máximo de 64 reglas o un presupuesto aproximado de 4 ms por bloque. Una operación individual del motor puede superar ese presupuesto; no constituye una garantía de latencia. Mantiene el orden de las reglas, las reglas anidadas, la deduplicación y la detección posterior de hojas nuevas. Los colores se aplican al completar el recorrido y el logotipo se instala sin esperar al recorrido.
+
+El diagnóstico opcional añade `branding`, con contadores acumulados desde la carga del documento: pasadas, bloques, reglas, duración de bloques y máximo. Incluye la escritura CSS final, pero no toda la inicialización del módulo. No se suman estas cifras a las tareas largas globales, pues pueden solaparse.
+
+Las 23 pruebas incluyen cesión inicial, varios bloques, orden, hojas añadidas, reinyección, hojas inaccesibles y ausencia de la API de tiempos. Falta medir los bloques reales en el LX352 antes de atribuir una mejora de fluidez.
