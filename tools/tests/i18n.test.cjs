@@ -7,13 +7,23 @@ const main = path.resolve(__dirname, '../../extensions/extension/src/main');
 const catalogs = Object.fromEntries(fs.readdirSync(path.join(main, 'locales')).filter(f => f.endsWith('.json'))
     .map(f => [f.slice(0, -5), JSON.parse(fs.readFileSync(path.join(main, 'locales', f), 'utf8'))]));
 
-function page(language = 'es-PE', browser = 'en-US') {
+function page(language = 'es-PE', browser = 'en-US', diagnostics = false) {
     const intervals = [];
     const styleWrites = [];
     const timers = new Map();
     let nextTimer = 1;
+    let clock = 0;
+    const observers = [];
     const context = vm.createContext({
         __farotvTranslations: structuredClone(catalogs),
+        __farotvDiagnostics: diagnostics,
+        performance: { now: () => ++clock, getEntriesByType: () => [] },
+        URL,
+        PerformanceObserver: class {
+            static supportedEntryTypes = ['resource', 'longtask'];
+            constructor(callback) { this.callback = callback; observers.push(this); }
+            observe(options) { this.types = options.entryTypes; }
+        },
         document: { documentElement: { lang: language }, title: 'YouTube', adoptedStyleSheets: [], querySelector: () => null },
         navigator: { language: browser }, location: { hostname: 'www.youtube.com', href: 'https://www.youtube.com/tv', hash: '' },
         setTimeout: (fn, ms) => { const id = nextTimer++; timers.set(id, { fn, ms }); return id; },
@@ -24,14 +34,59 @@ function page(language = 'es-PE', browser = 'en-US') {
         getItem(k) { return this.data[k] || null; } setItem(k,v) { this.data[k] = v; } removeItem(k) { delete this.data[k]; } }
         localStorage = new Storage();
         _yttv = { registry: { ENABLE_PREVIEWS_WITH_SOUND: true }, defaults: new Map([['ENABLE_PREVIEWS_WITH_SOUND', true]]) };`, context);
-    for (const name of ['i18n', 'runtime', 'ads', 'player', 'premium', 'ryd', 'shorts', 'sponsorblock', 'topics']) {
+    for (const name of ['i18n', 'runtime', 'diagnostics', 'ads', 'player', 'premium', 'ryd', 'shorts', 'sponsorblock', 'topics']) {
         vm.runInContext(fs.readFileSync(path.join(main, 'js', name + '.js'), 'utf8'), context, { filename: name + '.js' });
     }
     context.intervals = intervals;
     context.styleWrites = styleWrites;
     context.timers = timers;
+    context.observers = observers;
     return context;
 }
+
+test('performance diagnostics are inactive by default', () => {
+    const p = page('en');
+    assert.equal(p.observers.length, 0);
+    assert.ok(!p.intervals.some(t => t.ms === 15000));
+    assert.equal(p.youtv.performanceSnapshot(), null);
+});
+
+test('optional diagnostics aggregate durations without recording URLs or content and reset each window', () => {
+    const p = page('en', 'en-US', true);
+    const reports = [];
+    p.youtv.report = message => reports.push(message);
+    p.youtv.performanceSnapshot();
+    vm.runInContext(`JSON.parse('{"private_content":"never_log_this"}')`, p);
+    p.observers.find(o => o.types[0] === 'resource').callback({ getEntries: () => [{
+        name: 'https://www.youtube.com/youtubei/v1/player?key=secret_key&videoId=private_id',
+        duration: 1200, startTime: 100, responseStart: 350, initiatorType: 'fetch'
+    }] });
+    p.observers.find(o => o.types[0] === 'longtask').callback({ getEntries: () => [{ duration: 80 }] });
+    const tick = p.intervals.find(t => t.ms === 15000).fn;
+    tick();
+    const report = JSON.parse(reports[0].slice(5));
+    assert.equal(report.runtime.responses, 1);
+    assert.ok(report.runtime.parseMs > 0);
+    assert.ok(report.runtime.features.ads.calls > 0);
+    assert.equal(report.resources.player.count, 1);
+    assert.equal(report.resources.player.maxMs, 1200);
+    assert.equal(report.resources.player.ttfbMs, 250);
+    assert.equal(report.longTasks.count, 1);
+    assert.ok(!/secret_key|private_id|never_log_this|youtube\.com/.test(reports[0]));
+    tick();
+    const empty = JSON.parse(reports[1].slice(5));
+    assert.equal(empty.runtime.responses, 0);
+    assert.deepEqual(empty.resources, {});
+    assert.equal(empty.longTasks.count, 0);
+});
+
+test('diagnostics tolerate browsers without PerformanceObserver', () => {
+    const p = page('en');
+    p.PerformanceObserver = undefined;
+    p.__farotvDiagnostics = true;
+    assert.doesNotThrow(() => vm.runInContext(fs.readFileSync(path.join(main, 'js/diagnostics.js'), 'utf8'), p));
+    assert.ok(p.intervals.some(t => t.ms === 15000));
+});
 
 test('identical in-flight requests share one request and clear their timeout on delivery', () => {
     const p = page('en');

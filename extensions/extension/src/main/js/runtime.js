@@ -407,9 +407,17 @@
     }
 
     // ---- response hook ------------------------------------------------------------------------
+    function emptyPerformance() {
+        return { responses: 0, chars: 0, parseMs: 0, scriptsMs: 0, maxScriptsMs: 0, features: {} };
+    }
+    var profiling = window.__farotvDiagnostics && window.performance &&
+        typeof window.performance.now === "function" ? emptyPerformance() : null;
+    function clock() { return window.performance.now(); }
     JSON.parse = function () {
+        var started = profiling ? clock() : 0;
         var result = parse.apply(this, arguments);
         if (!result || typeof result !== "object") return result;
+        var parsedAt = profiling ? clock() : 0;
         // The raw text is passed on so features can skip responses without their markers
         // (youtv.mentions): searching the text is much cheaper than walking the parsed tree.
         var text = typeof arguments[0] === "string" ? arguments[0] : "";
@@ -421,11 +429,25 @@
         for (var i = 0; i < features.length; i++) {
             var feature = features[i];
             if (typeof feature.definition.onResponse !== "function" || !feature.enabled()) continue;
+            var featureStart = profiling ? clock() : 0;
             try {
                 feature.definition.onResponse(result, feature.settings, text);
             } catch (e) {
                 report(feature.id + ": failed: " + e);
             }
+            if (profiling) {
+                var own = profiling.features[feature.id] || { calls: 0, ms: 0, maxMs: 0 };
+                var elapsed = clock() - featureStart;
+                own.calls++; own.ms += elapsed; own.maxMs = Math.max(own.maxMs, elapsed);
+                profiling.features[feature.id] = own;
+            }
+        }
+        if (profiling) {
+            var scriptsMs = clock() - parsedAt;
+            profiling.responses++; profiling.chars += text.length;
+            profiling.parseMs += parsedAt - started;
+            profiling.scriptsMs += scriptsMs;
+            profiling.maxScriptsMs = Math.max(profiling.maxScriptsMs, scriptsMs);
         }
         return result;
     };
@@ -447,6 +469,11 @@
         },
         setIcons: setIcons,
         deliver: deliver,
+        performanceSnapshot: function () {
+            var snapshot = profiling;
+            if (snapshot) profiling = emptyPerformance();
+            return snapshot;
+        },
         status: function () {
             return {
                 registry: !!registry,
