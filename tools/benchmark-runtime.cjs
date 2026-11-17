@@ -52,4 +52,19 @@ function measure(ref) {
              temporizadoresDespues: [...timers.values()].filter(t => t.ms === 60000).length,
              respuestasConContador: populated };
 }
-console.log(JSON.stringify({ anterior: { referencia: baseline, ...measure(baseline) }, actual: measure(null) }, null, 2));
+function icons(ref) {
+    let writes = 0;
+    const context = vm.createContext({
+        document: { adoptedStyleSheets: [] },
+        youtv: { setIcons() {}, report() {} },
+        CSSStyleSheet: class { replaceSync() { writes++; } }
+    });
+    vm.runInContext('window = this;', context);
+    const file = sourcePath + 'js/icons.js';
+    const source = ref ? execFileSync('git', ['show', ref + ':' + file], { cwd: root, encoding: 'utf8' })
+                       : fs.readFileSync(path.join(root, file), 'utf8');
+    for (let i = 0; i < 100; i++) vm.runInContext(source, context);
+    return { reinyecciones: 100, hojasAdoptadas: context.document.adoptedStyleSheets.length, escriturasCSS: writes };
+}
+console.log(JSON.stringify({ anterior: { referencia: baseline, ...measure(baseline), iconos: icons(baseline) },
+                            actual: { ...measure(null), iconos: icons(null) } }, null, 2));
