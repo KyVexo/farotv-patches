@@ -1,3 +1,9 @@
+## [1.7.0-dev.2](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.1...v1.7.0-dev.2) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* **tv:** devolver las teclas de volumen al control de Android ([aafcccf](https://github.com/jair1c/farotv-patches/commit/aafcccf4fb9647b594e1b8c5786c22fa02fa0293)), closes [#17](https://github.com/jair1c/farotv-patches/issues/17)
+
 ## [1.7.0-dev.1](https://github.com/jair1c/farotv-patches/compare/v1.6.0...v1.7.0-dev.1) (2026-11-17)
 
 ### ✨ New Features

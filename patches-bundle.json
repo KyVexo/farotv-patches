@@ -1,8 +1,8 @@
 {
-  "created_at": "2026-11-17T00:29:04",
-  "description": "## [1.7.0-dev.1](https://github.com/jair1c/farotv-patches/compare/v1.6.0...v1.7.0-dev.1) (2026-11-17)\n\n### ✨ New Features\n\n* **i18n:** incorporar árabe y dirección RTL para pruebas ([9bed63f](https://github.com/jair1c/farotv-patches/commit/9bed63fdb3c99de7bb8e317f2708dd66c5d5e41f)), closes [#16](https://github.com/jair1c/farotv-patches/issues/16)",
-  "download_url": "https://github.com/jair1c/farotv-patches/releases/download/v1.7.0-dev.1/patches-1.7.0-dev.1.mpp",
+  "created_at": "2026-11-17T01:13:06",
+  "description": "## [1.7.0-dev.2](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.1...v1.7.0-dev.2) (2026-11-17)\n\n### 🐛 Bug Fixes\n\n* **tv:** devolver las teclas de volumen al control de Android ([aafcccf](https://github.com/jair1c/farotv-patches/commit/aafcccf4fb9647b594e1b8c5786c22fa02fa0293)), closes [#17](https://github.com/jair1c/farotv-patches/issues/17)",
+  "download_url": "https://github.com/jair1c/farotv-patches/releases/download/v1.7.0-dev.2/patches-1.7.0-dev.2.mpp",
   "signature_download_url": "",
-  "version": "1.7.0-dev.1",
+  "version": "1.7.0-dev.2",
   "public_key": "B+w9LCwCheqTn0XZycE7F2wZPc5CBoaYxCExWOrB0sg="
 }
