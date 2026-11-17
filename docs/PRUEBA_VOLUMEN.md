@@ -18,4 +18,4 @@ El parche **Fix volume keys**, activado por defecto, devuelve `false` en esa con
 - El parche se aplicó y reconstruyó correctamente también sobre 7.32.300; esa versión no se instaló en el TV durante esta prueba.
 - Las nueve pruebas de traducción e interfaz pasaron y GitHub compiló/publicó la versión de desarrollo correctamente.
 
-Quedan pendientes la confirmación con el mando físico y la prueba de Yared en su dispositivo. Tampoco se han validado receptores HDMI-CEC o salidas Bluetooth. No promover a estable hasta terminar la validación acordada. Esta versión de desarrollo incluye además el árabe de iiurn, cuya validación visual sigue pendiente.
+El usuario confirmó que funciona con el mando físico del LX352. El fallo de volumen queda corregido en ese equipo. Queda la prueba de Yared en su dispositivo; tampoco se han validado receptores HDMI-CEC o salidas Bluetooth. No promover a estable hasta terminar la validación acordada. Esta versión de desarrollo incluye además el árabe de iiurn, cuya validación visual sigue pendiente.

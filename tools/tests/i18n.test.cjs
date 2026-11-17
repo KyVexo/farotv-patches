@@ -9,12 +9,13 @@ const catalogs = Object.fromEntries(fs.readdirSync(path.join(main, 'locales')).f
 
 function page(language = 'es-PE', browser = 'en-US') {
     const intervals = [];
+    const styleWrites = [];
     const context = vm.createContext({
         __farotvTranslations: structuredClone(catalogs),
         document: { documentElement: { lang: language }, title: 'YouTube', adoptedStyleSheets: [], querySelector: () => null },
         navigator: { language: browser }, location: { hostname: 'www.youtube.com', href: 'https://www.youtube.com/tv', hash: '' },
         setTimeout: () => 0, clearTimeout: () => {}, setInterval: (fn, ms) => { intervals.push({ fn, ms }); return 0; },
-        CSSStyleSheet: class { replaceSync() {} }, Intl
+        CSSStyleSheet: class { replaceSync(css) { styleWrites.push(css); } }, Intl
     });
     vm.runInContext(`window = this; class Storage { constructor() { this.data = {}; }
         getItem(k) { return this.data[k] || null; } setItem(k,v) { this.data[k] = v; } removeItem(k) { delete this.data[k]; } }
@@ -24,8 +25,24 @@ function page(language = 'es-PE', browser = 'en-US') {
         vm.runInContext(fs.readFileSync(path.join(main, 'js', name + '.js'), 'utf8'), context, { filename: name + '.js' });
     }
     context.intervals = intervals;
+    context.styleWrites = styleWrites;
     return context;
 }
+
+test('repeated player responses avoid redundant CSS writes and toggles still apply immediately', () => {
+    const p = page('es');
+    const initial = p.styleWrites.length;
+    const response = '{"transportControls":{"transportControlsRenderer":{"promotedActions":[]}}}';
+    p.playerResponse = response;
+    vm.runInContext('for (var i = 0; i < 500; i++) JSON.parse(playerResponse);', p);
+    assert.equal(p.styleWrites.length - initial, 1);
+    vm.runInContext(`localStorage.setItem('yt.leanback.default::YOUTV_PLAYER_RELATED', '{"data":true}'); JSON.parse(playerResponse);`, p);
+    assert.equal(p.styleWrites.at(-1), 'ytlr-pivot { display: none !important; }');
+    assert.equal(p.styleWrites.length - initial, 2);
+    vm.runInContext(`localStorage.setItem('yt.leanback.default::YOUTV_PLAYER_RELATED', '{"data":false}'); JSON.parse(playerResponse);`, p);
+    assert.equal(p.styleWrites.at(-1), '');
+    assert.equal(p.styleWrites.length - initial, 3);
+});
 
 function settings(context) {
     return vm.runInContext(`JSON.parse(' {"items":[{"settingCategoryCollectionRenderer":{"categoryId":"SETTING_CAT_TVHTML5_ABOUT","items":[]}}]}')`, context);
