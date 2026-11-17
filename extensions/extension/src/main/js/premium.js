@@ -44,51 +44,16 @@
         return !!promoKey(popup);
     }
 
-    function removePromos(node, depth) {
-        if (!node || typeof node !== "object" || depth > 30) return 0;
-        var removed = 0;
-        if (Array.isArray(node)) {
-            // Compact once in original order instead of shifting the tail for every promo.
-            var write = 0;
-            for (var i = 0; i < node.length; i++) {
-                var item = node[i];
-                if (isPromo(item)) {
-                    removed++;
-                } else {
-                    removed += removePromos(item, depth + 1);
-                    if (write !== i) {
-                        if (i in node) node[write] = item;
-                        else delete node[write];
-                    }
-                    write++;
-                }
-            }
-            if (write !== node.length) node.length = write;
-            return removed;
-        }
-        for (var key in node) {
-            if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
-            // A promo held directly in a field (for example messages.mealbarPromoRenderer).
-            if (isPromoKey(key)) {
-                delete node[key];
-                removed++;
-                continue;
-            }
-            removed += removePromos(node[key], depth + 1);
-        }
-        return removed;
-    }
-
     youtv.feature({
         id: "premium-promos",
         nameKey: "feature.premium-promos.name",
         summaryKey: "feature.premium-promos.summary",
         defaultEnabled: true,
-        onResponse: function (response, settings, text) {
-            if (!youtv.mentions(text, MARKERS)) return;
-            var removed = removePromos(response, 0);
-            if (removed) youtv.report("premium-promos: removed " + removed + " promotion(s)");
+        treeFilter: {
+            markers: MARKERS,
+            item: isPromo,
+            key: isPromoKey,
+            report: function (removed) { youtv.report("premium-promos: removed " + removed + " promotion(s)"); }
         }
     });
 })();
-

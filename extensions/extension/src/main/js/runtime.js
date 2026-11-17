@@ -417,9 +417,38 @@
         });
     }
 
+    // ---- shared tree filters ------------------------------------------------------------------
+    function filterResponseTree(response, text) {
+        var started = profiling ? clock() : 0;
+        var active = [];
+        for (var i = 0; i < features.length; i++) {
+            var feature = features[i];
+            var definition = feature.definition;
+            var rule = definition.treeFilter;
+            if (!rule || !feature.enabled()) continue;
+            try {
+                if (definition.beforeTree) definition.beforeTree(response);
+                if ((!rule.eligible || rule.eligible(response)) && youtv.mentions(text, rule.markers)) {
+                    active.push({ rule: rule, removed: 0 });
+                }
+            } catch (e) { report(feature.id + ": prepare failed: " + e); }
+        }
+        var visited = active.length ? youtv.applyTreeFilters(response, active) : 0;
+        for (var i = 0; i < active.length; i++) {
+            if (active[i].removed && active[i].rule.report) active[i].rule.report(active[i].removed);
+        }
+        if (profiling) {
+            var stats = profiling.treeFilters;
+            var elapsed = clock() - started;
+            stats.responses++; stats.walks += active.length ? 1 : 0;
+            stats.rules += active.length; stats.nodes += visited;
+            stats.ms += elapsed; stats.maxMs = Math.max(stats.maxMs, elapsed);
+        }
+    }
+
     // ---- response hook ------------------------------------------------------------------------
     function emptyPerformance() {
-        return { responses: 0, chars: 0, parseMs: 0, scriptsMs: 0, maxScriptsMs: 0, features: {} };
+        return { responses: 0, chars: 0, parseMs: 0, scriptsMs: 0, maxScriptsMs: 0, features: {}, treeFilters: { responses: 0, walks: 0, rules: 0, nodes: 0, ms: 0, maxMs: 0 } };
     }
     var profiling = window.__farotvDiagnostics && window.performance &&
         typeof window.performance.now === "function" ? emptyPerformance() : null;
@@ -437,8 +466,17 @@
         } catch (e) {
             report("settings: inject failed: " + e);
         }
+        var treeDone = false;
         for (var i = 0; i < features.length; i++) {
             var feature = features[i];
+            if (feature.definition.treeFilter) {
+                if (!treeDone && feature.enabled()) {
+                    treeDone = true;
+                    try { filterResponseTree(result, text); }
+                    catch (e) { report("tree filters failed: " + e); }
+                }
+                continue;
+            }
             if (typeof feature.definition.onResponse !== "function" || !feature.enabled()) continue;
             var featureStart = profiling ? clock() : 0;
             try {

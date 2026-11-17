@@ -9,8 +9,13 @@ const current=fs.readFileSync(file,'utf8');
 function filter(source){
     let feature; const reports=[];
     const p=vm.createContext({youtv:{feature:f=>feature=f,mentions:(text,markers)=>markers.some(m=>text.includes(m)),report:m=>reports.push(m)}});
-    vm.runInContext('window=this;',p);vm.runInContext(source,p);
-    return function(data,text=JSON.stringify(data)){feature.onResponse(data,null,text);return {data,reports:reports.splice(0)};};
+    vm.runInContext('window=this;',p);vm.runInContext(fs.readFileSync('extensions/extension/src/main/js/response-tree.js','utf8'),p);vm.runInContext(source,p);
+    return function(data,text=JSON.stringify(data)){if(feature.onResponse) feature.onResponse(data,null,text);
+        else if(p.youtv.mentions(text,feature.treeFilter.markers)) {
+            const entry={rule:feature.treeFilter,removed:0};p.youtv.applyTreeFilters(data,[entry]);
+            if(entry.removed)entry.rule.report(entry.removed);
+        }
+        return {data,reports:reports.splice(0)};};
 }
 const baseline=filter(old), optimized=filter(current);
 function compare(input){assert.deepEqual(optimized(structuredClone(input)),baseline(structuredClone(input)));}

@@ -122,3 +122,16 @@ La página completa todavía registró tareas largas de hasta 875 ms en el inici
 
 
 Se dejó instalado dev.10 normal en el LX352, sin el parche de diagnóstico. La muestra de treinta segundos confirma runtime y 26 ajustes registrados, sin resúmenes periódicos y sin excepciones fatales. Los resultados se guardaron en `normal-dev10`.
+
+
+## Recorrido compartido de anuncios, Premium y Shorts
+
+Los tres filtros recursivos pasan a declarar reglas de elementos y claves. El runtime selecciona una vez los filtros habilitados y elegibles por respuesta, conserva la eliminación del calendario de anuncios y hace como máximo un recorrido compartido. No desciende en valores primitivos. Mantiene el límite de profundidad, la compactación en orden, los marcadores y la condición de anuncios de feeds. Los objetos conservados mantienen su identidad.
+
+El recorrido se ejecuta en la posición del primer filtro recursivo habilitado, antes de continuar con los demás procesadores. Las reglas de prioridad son anuncios, Premium y Shorts. Cuando se elimina un contenedor completo, ya no se recorren ni cuentan sus descendientes: los contadores de elementos eliminados de los logs pueden diferir de las pasadas independientes. El resultado visible se compara con dev.10; el filtro del reproductor, los ajustes y las traducciones siguen cubiertos por las pruebas de integración.
+
+Las 31 pruebas incluyen ocho combinaciones de interruptores, 150 árboles mixtos generados, límite de profundidad, anuncios de reproducción y feeds, ventanas emergentes, listas dispersas, referencias conservadas, ausencia de marcadores y comparación del runtime completo con dev.10.
+
+`node tools/benchmark-tree-filters.cjs` compara nueve repeticiones sobre una respuesta sintética con 10000 fichas y tres elementos ocultables. Los nodos visitados bajan de 90015 a 30003. En esta ejecución de PC, con contadores instrumentados, la mediana fue 310,30 ms antes y 83,60 ms después. No representa respuestas equivalentes a las recibidas por el TV ni predice FPS o latencia de red; los contadores también añaden coste.
+
+El diagnóstico opcional informa `runtime.treeFilters`: respuestas preparadas, recorridos, reglas activas, nodos, tiempo acumulado y máximo por respuesta. Los tiempos de los tres filtros ya no aparecen como funciones independientes en `runtime.features`; se atribuyen al grupo compartido. Las métricas se reinician con cada ventana de diagnóstico y no contienen respuestas ni URL.

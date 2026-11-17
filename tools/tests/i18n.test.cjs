@@ -3,11 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
+const {execFileSync} = require('node:child_process');
 const main = path.resolve(__dirname, '../../extensions/extension/src/main');
 const catalogs = Object.fromEntries(fs.readdirSync(path.join(main, 'locales')).filter(f => f.endsWith('.json'))
     .map(f => [f.slice(0, -5), JSON.parse(fs.readFileSync(path.join(main, 'locales', f), 'utf8'))]));
 
-function page(language = 'es-PE', browser = 'en-US', diagnostics = false) {
+function page(language = 'es-PE', browser = 'en-US', diagnostics = false, sourceRef = null) {
     const intervals = [];
     const styleWrites = [];
     const timers = new Map();
@@ -34,8 +35,11 @@ function page(language = 'es-PE', browser = 'en-US', diagnostics = false) {
         getItem(k) { return this.data[k] || null; } setItem(k,v) { this.data[k] = v; } removeItem(k) { delete this.data[k]; } }
         localStorage = new Storage();
         _yttv = { registry: { ENABLE_PREVIEWS_WITH_SOUND: true }, defaults: new Map([['ENABLE_PREVIEWS_WITH_SOUND', true]]) };`, context);
-    for (const name of ['i18n', 'runtime', 'diagnostics', 'ads', 'player', 'premium', 'ryd', 'shorts', 'sponsorblock', 'topics']) {
-        vm.runInContext(fs.readFileSync(path.join(main, 'js', name + '.js'), 'utf8'), context, { filename: name + '.js' });
+    for (const name of ['i18n', 'runtime', 'diagnostics', 'response-tree', 'ads', 'player', 'premium', 'ryd', 'shorts', 'sponsorblock', 'topics']) {
+        if (sourceRef && name === 'response-tree') continue;
+        const source = sourceRef ? execFileSync('git', ['show', sourceRef + ':extensions/extension/src/main/js/' + name + '.js'], {encoding:'utf8'})
+            : fs.readFileSync(path.join(main, 'js', name + '.js'), 'utf8');
+        vm.runInContext(source, context, { filename: name + '.js' });
     }
     context.intervals = intervals;
     context.styleWrites = styleWrites;
@@ -98,7 +102,7 @@ test('optional diagnostics aggregate durations without recording URLs or content
     const report = JSON.parse(reports[0].slice(5));
     assert.equal(report.runtime.responses, 1);
     assert.ok(report.runtime.parseMs > 0);
-    assert.ok(report.runtime.features.ads.calls > 0);
+    assert.ok(report.runtime.treeFilters.responses > 0);
     assert.equal(report.resources.player.count, 1);
     assert.equal(report.resources.player.maxMs, 1200);
     assert.equal(report.resources.player.ttfbMs, 250);
@@ -416,4 +420,27 @@ test('branding slices fall back without performance API and ignore unreadable sh
         p.timers.delete(timer[0]); assert.doesNotThrow(()=>timer[1].fn());
     }
     assert.equal(p.__farotvBrandingPerformance,undefined);
+});
+
+
+test('full runtime keeps native switches and player output equivalent with shared filters', () => {
+    const old=page('es','en',false,'v1.7.0-dev.10');const current=page();
+    const input={contents:{items:[{tileRenderer:{title:'keep'}},{adSlotRenderer:{}},{mealbarPromoRenderer:{}},
+        {shelfRenderer:{tvhtml5ShelfRendererType:'TVHTML5_SHELF_RENDERER_TYPE_SHORTS'}}]},
+        adPlacements:[],transportControls:{transportControlsRenderer:{promotedActions:[
+            {type:'TRANSPORT_CONTROLS_BUTTON_TYPE_LIKE_BUTTON',button:{likeButtonRenderer:{target:{videoId:'abcdefghijk'}}}},
+            {button:{upsellDialogRenderer:{}}}]}}};
+    for(let mask=0;mask<8;mask++){
+        for(const p of [old,current]){
+            ['ADS','PREMIUM_PROMOS','SHORTS'].forEach((key,i)=>p.localStorage.setItem('yt.leanback.default::YOUTV_'+key,JSON.stringify({data:!!(mask&(1<<i))})));
+            p.localStorage.setItem('yt.leanback.default::YOUTV_PLAYER_LIKE','{"data":true}');
+            p.payload=JSON.stringify(input);
+        }
+        const a=vm.runInContext('JSON.stringify(JSON.parse(payload))',old);
+        const b=vm.runInContext('JSON.stringify(JSON.parse(payload))',current);
+        assert.deepEqual(JSON.parse(b),JSON.parse(a),'mask '+mask);
+    }
+    const diagnostic=page('es','en',true);
+    diagnostic.payload=JSON.stringify(input);vm.runInContext('JSON.parse(payload)',diagnostic);
+    const snap=diagnostic.youtv.performanceSnapshot();assert.equal(snap.treeFilters.walks,1);assert.equal(snap.treeFilters.rules,3);
 });
