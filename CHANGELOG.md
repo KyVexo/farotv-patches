@@ -1,3 +1,9 @@
+## [1.7.0-dev.10](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.9...v1.7.0-dev.10) (2026-11-17)
+
+### 🔧 Improvements
+
+* reducir recorridos y desplazamientos del filtro Premium ([baeba04](https://github.com/jair1c/farotv-patches/commit/baeba04dacefd8693a1e5700da3c34025e99d05d))
+
 ## [1.7.0-dev.9](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.8...v1.7.0-dev.9) (2026-11-17)
 
 ### 🔧 Improvements
