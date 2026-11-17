@@ -42,7 +42,7 @@ jobs:
         run: npm install
 
       - name: Verify translations
-        run: node --test tools/tests/i18n.test.cjs tools/tests/site-locales.test.cjs
+        run: node --test tools/tests/i18n.test.cjs tools/tests/site-locales.test.cjs tools/tests/premium.test.cjs
 
       # Semantic release runs its own Gradle build command.
       # Only dev and main branch will generate a release as specified by .releaserc
@@ -100,7 +100,7 @@ jobs:
         run: |
           test "$(node -p "require('./patches-bundle.json').version")" = "${RECOVERY_TAG#v}"
           test "$(git rev-parse HEAD)" = "$(git rev-parse "$RECOVERY_TAG^{commit}")"
-          node --test tools/tests/i18n.test.cjs tools/tests/site-locales.test.cjs
+          node --test tools/tests/i18n.test.cjs tools/tests/site-locales.test.cjs tools/tests/premium.test.cjs
       - name: Compilar con la clave habitual del proyecto
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

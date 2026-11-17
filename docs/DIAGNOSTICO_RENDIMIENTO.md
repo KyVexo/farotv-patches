@@ -101,3 +101,12 @@ La página todavía registró 25 tareas largas en la primera ventana (máximo 97
 El filtro de promociones Premium fue el mayor procesador individual de esa ventana, con un máximo de 26,7 ms. Es el siguiente candidato para reducir recorridos síncronos; no equivale por sí solo a explicar las tareas globales de 489–977 ms.
 
 Finalmente se instaló dev.9 normal como actualización, sin el parche de diagnóstico. Tras treinta segundos: runtime y 26 ajustes cargados, sin resúmenes periódicos y sin excepciones fatales en la muestra. Las mediciones se conservan en las carpetas locales `diagnostico-dev9` y `normal-dev9`; no se distribuyen APK de Google.
+
+
+## Optimización del filtro de promociones Premium
+
+Se mantiene síncrono porque modifica la respuesta antes de que YouTube la consuma. Se sustituye la eliminación repetida con `splice` por una compactación lineal que conserva el orden y las referencias supervivientes. Los nombres de renderer reutilizan una clasificación acotada a 256 entradas; los campos sin `Renderer` evitan la expresión regular. Se conservan el límite de profundidad, la comprobación de marcadores y las reglas de eliminación anteriores.
+
+Las 27 pruebas incluyen comparación con dev.9 en 150 árboles generados, renderers directos, ventanas emergentes, arrays anidados y dispersos, límites de profundidad y expulsión de la caché. Se añaden al flujo de publicación.
+
+`node tools/benchmark-premium.cjs v1.7.0-dev.9` usa 10000 elementos sintéticos con promociones alternas, 15 repeticiones y contadores instrumentados. En esta ejecución de PC: mediana 98,51 ms antes y 31,78 ms después; comprobaciones de expresión regular 525015 frente a 2 y operaciones `splice` 75000 frente a 0. Es una carga de estrés artificial, no una respuesta representativa ni una predicción de FPS, tiempos en el LX352 o latencia de red. Falta la comprobación real en TV.
