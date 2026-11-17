@@ -82,3 +82,22 @@ La siguiente iteración agenda el recorrido con temporizadores, con un máximo d
 El diagnóstico opcional añade `branding`, con contadores acumulados desde la carga del documento: pasadas, bloques, reglas, duración de bloques y máximo. Incluye la escritura CSS final, pero no toda la inicialización del módulo. No se suman estas cifras a las tareas largas globales, pues pueden solaparse.
 
 Las 23 pruebas incluyen cesión inicial, varios bloques, orden, hojas añadidas, reinyección, hojas inaccesibles y ausencia de la API de tiempos. Falta medir los bloques reales en el LX352 antes de atribuir una mejora de fluidez.
+
+
+El banco `node tools/benchmark-branding.cjs v1.7.0-dev.8` compara el archivo completo de branding con 10000 reglas simuladas: una tarea de 10000 reglas antes y 157 tareas de hasta 64 reglas después, con 10000 reglas examinadas y dos escrituras CSS en ambos casos. Es una medida de distribución del trabajo, no de FPS ni del coste real del CSSOM del TV.
+
+Publicado como `v1.7.0-dev.9`, con pruebas, compilación y atestación correctas en la ejecución 44009305436. La traducción árabe cuenta además con la confirmación de iiurn en el comentario 6936622976 de la incidencia 11. Se agradeció su aporte y validación en el comentario 6937017665; esa validación lingüística no sustituye las pruebas de rendimiento.
+
+
+### Medición del recoloreado en LX352
+
+Se instaló dev.9 con diagnóstico sobre YouTube TV 8.02.300. La primera captura muestra el inicio cargado; después se abrió el primer vídeo con el mando y la segunda captura confirma reproducción.
+
+La primera ventana acumuló cuatro pasadas, 16656 reglas y 422 bloques, con 1682,8 ms de trabajo acumulado y un máximo por bloque de 10,6 ms. Tras abrir el vídeo llegó a cinco pasadas, 23386 reglas y 629 bloques, con 2601,1 ms acumulados y un máximo de 15,5 ms. Son contadores acumulados por documento; no se suman entre ventanas. Esto confirma que el recorrido real cede el hilo y que una operación puede superar el presupuesto aproximado de 4 ms. No es una comparación antes/después de FPS o de tiempo de carga.
+
+La página todavía registró 25 tareas largas en la primera ventana (máximo 977 ms); al abrir el vídeo hubo otra ventana con ocho tareas largas (máximo 489 ms). Los procesadores de respuestas de FaroTV llegaron a 43,1 ms en esa última ventana. No se observaron excepciones fatales en la muestra. Es necesario atribuir las otras tareas a funciones concretas antes de cambiarlas; el fraccionamiento del recoloreado no resuelve todas las pausas.
+
+
+El filtro de promociones Premium fue el mayor procesador individual de esa ventana, con un máximo de 26,7 ms. Es el siguiente candidato para reducir recorridos síncronos; no equivale por sí solo a explicar las tareas globales de 489–977 ms.
+
+Finalmente se instaló dev.9 normal como actualización, sin el parche de diagnóstico. Tras treinta segundos: runtime y 26 ajustes cargados, sin resúmenes periódicos y sin excepciones fatales en la muestra. Las mediciones se conservan en las carpetas locales `diagnostico-dev9` y `normal-dev9`; no se distribuyen APK de Google.
