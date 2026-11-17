@@ -1,3 +1,9 @@
+## [1.7.0-dev.6](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.5...v1.7.0-dev.6) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* **diagnostics:** activar el registro con un retorno booleano ([9379d4b](https://github.com/jair1c/farotv-patches/commit/9379d4b9026308aa881b468661ced2b7c435dcd4))
+
 ## [1.7.0-dev.5](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.4...v1.7.0-dev.5) (2026-11-17)
 
 ### ✨ New Features
