@@ -1,3 +1,9 @@
+## [1.7.0-dev.11](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.10...v1.7.0-dev.11) (2026-11-17)
+
+### 🔧 Improvements
+
+* unificar los recorridos de anuncios Premium y Shorts ([79e73f1](https://github.com/jair1c/farotv-patches/commit/79e73f1829dddf7a8fb24576a370690a1be352b2))
+
 ## [1.7.0-dev.10](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.9...v1.7.0-dev.10) (2026-11-17)
 
 ### 🔧 Improvements
