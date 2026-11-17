@@ -1,3 +1,9 @@
+## [1.7.0-dev.3](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.2...v1.7.0-dev.3) (2026-11-17)
+
+### 🔧 Improvements
+
+* **player:** evitar reescrituras de estilos sin cambios ([610ddc6](https://github.com/jair1c/farotv-patches/commit/610ddc68ed480e4555f26fb2cf0ae2257bb794c0))
+
 ## [1.7.0-dev.2](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.1...v1.7.0-dev.2) (2026-11-17)
 
 ### 🐛 Bug Fixes
