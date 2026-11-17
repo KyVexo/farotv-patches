@@ -315,3 +315,48 @@ test('all 26 settings, About and restart commands switch language without changi
         assert.ok(!/^(feature|player|sponsor)\./.test(renderer.title.runs[0].text), renderer.itemId);
     }
 });
+
+
+test('cached setting decoding still observes native writes, removal, malformed values and storage failures', () => {
+    const p = page();
+    vm.runInContext(`probe = youtv.feature({id:'cache-probe', defaultEnabled:true});`, p);
+    const key = 'yt.leanback.default::YOUTV_CACHE_PROBE';
+    assert.equal(p.probe.enabled(), true);
+    p.localStorage.setItem(key, '{"data":false}');
+    for (let i=0; i<100; i++) assert.equal(p.probe.enabled(), false);
+    p.localStorage.setItem(key, '{"data":true}');
+    assert.equal(p.probe.enabled(), true);
+    p.localStorage.setItem(key, 'broken');
+    assert.equal(p.probe.enabled(), true);
+    assert.equal(p.probe.enabled(), true);
+    p.localStorage.setItem(key, '{"data":false}');
+    assert.equal(p.probe.enabled(), false);
+    p.localStorage.removeItem(key);
+    assert.equal(p.probe.enabled(), true);
+    p.localStorage.getItem = () => { throw Error('unavailable'); };
+    assert.equal(p.probe.enabled(), true);
+});
+
+test('SponsorBlock reuses bounded expiring responses by video and categories without caching failures', () => {
+    const p = page();
+    p.now = 1000;
+    vm.runInContext('Date.now = () => now;', p);
+    const calls = [];
+    p.youtv.request = (url, callback) => calls.push({url, callback});
+    const tick = p.intervals.find(t => t.ms === 400).fn;
+    function visit(id) { p.location.hash = '#/watch?v=' + id; tick(); }
+    function leave() { p.location.hash = ''; tick(); }
+    visit('abcdefghijk'); calls.at(-1).callback(404, 'Not Found'); leave(); visit('abcdefghijk');
+    assert.equal(calls.length, 1);
+    leave(); p.localStorage.setItem('yt.leanback.default::YOUTV_SPONSORBLOCK_INTRO', '{"data":true}');
+    visit('abcdefghijk'); assert.equal(calls.length, 2);
+    calls.at(-1).callback(500, 'failure'); leave(); visit('abcdefghijk');
+    assert.equal(calls.length, 3);
+    calls.at(-1).callback(200, '[]'); leave(); visit('abcdefghijk');
+    assert.equal(calls.length, 3);
+    leave(); p.now += 5*60*1000; visit('abcdefghijk');
+    assert.equal(calls.length, 4);
+    calls.at(-1).callback(200, '[]');
+    for(let i=0;i<50;i++) { leave(); visit(String(i).padStart(11,'0')); calls.at(-1).callback(404, ''); }
+    leave(); visit('abcdefghijk'); assert.equal(calls.length, 55);
+});

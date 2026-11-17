@@ -54,3 +54,11 @@ node tools/benchmark-runtime.cjs v1.7.0-dev.6
 Esta modificación evita trabajo y copias propias de FaroTV. La espera de los recursos remotos y las tareas de inicialización del resto de la página siguen requiriendo un análisis separado.
 
 En el LX352 se aplicó e instaló dev.7 con diagnóstico y se pasó por inicio, vídeo y regreso al inicio. Los tres resúmenes registraron **una hoja de iconos** pese a las reinyecciones observadas. No hubo excepciones fatales en los registros muestreados. Finalmente se instaló dev.7 normal, con el parche opcional excluido: tras treinta segundos se confirmaron el runtime cargado, los veintiséis ajustes registrados, ausencia de resúmenes periódicos y ausencia de excepciones fatales en la muestra. La compilación, publicación y atestación de dev.7 y las comprobaciones del repositorio terminaron correctamente.
+
+
+## Siguiente iteración: cachés de ajustes y SponsorBlock
+
+- Los ajustes siguen consultando el almacenamiento en cada lectura para reconocer los cambios nativos inmediatamente; solo se reutiliza la decodificación JSON mientras el valor guardado no cambie. Los valores ausentes, inválidos y los errores conservan el valor predeterminado.
+- SponsorBlock conserva durante cinco minutos hasta 50 respuestas por URL (vídeo y categorías). También conserva el resultado 404; los fallos de conexión y los errores del servidor permiten reintentar. Cada reproducción reconstruye los segmentos y sus indicadores de salto, sin persistir datos en disco.
+- Comprobación automatizada: 21 pruebas, incluyendo cambio de categorías, caducidad, expulsión y reintento de errores. Esto demuestra menos solicitudes al volver al mismo vídeo; no demuestra una reducción general de la latencia de YouTube ni de las tareas largas del motor.
+- Pendiente: atribuir las tareas largas restantes, incluidos los inicializadores de scripts, y comparar tiempos en el televisor. No se altera la caché de respuestas privadas de YouTube ni los enlaces de reproducción.

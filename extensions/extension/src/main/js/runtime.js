@@ -49,10 +49,21 @@
     var registry = null;        // YouTube's known client settings ({ KEY: true })
     var defaults = null;        // YouTube's client setting defaults (Map)
 
+    // Cache decoding, not storage reads: native switches must take effect immediately.
+    var decodedSettings = Object.create(null);
     function readSetting(setting) {
         try {
-            var stored = parse(localStorage.getItem(STORAGE_PREFIX + setting.key));
-            if (stored && typeof stored.data === "boolean") return stored.data;
+            var raw = localStorage.getItem(STORAGE_PREFIX + setting.key);
+            var cached = decodedSettings[setting.key];
+            if (!cached || cached.raw !== raw) {
+                var value;
+                try {
+                    var stored = raw === null ? null : parse(raw);
+                    if (stored && typeof stored.data === "boolean") value = stored.data;
+                } catch (e) {}
+                cached = decodedSettings[setting.key] = { raw: raw, value: value };
+            }
+            if (typeof cached.value === "boolean") return cached.value;
         } catch (e) {}
         return setting.defaultValue;
     }
