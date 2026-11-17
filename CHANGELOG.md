@@ -1,3 +1,9 @@
+## [1.7.0-dev.1](https://github.com/jair1c/farotv-patches/compare/v1.6.0...v1.7.0-dev.1) (2026-11-17)
+
+### ✨ New Features
+
+* **i18n:** incorporar árabe y dirección RTL para pruebas ([9bed63f](https://github.com/jair1c/farotv-patches/commit/9bed63fdb3c99de7bb8e317f2708dd66c5d5e41f)), closes [#16](https://github.com/jair1c/farotv-patches/issues/16)
+
 ## [1.6.0](https://github.com/jair1c/farotv-patches/compare/v1.5.1...v1.6.0) (2026-11-15)
 
 ### ✨ New Features
