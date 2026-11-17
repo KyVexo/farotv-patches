@@ -1,3 +1,9 @@
+## [1.7.0-dev.9](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.8...v1.7.0-dev.9) (2026-11-17)
+
+### 🔧 Improvements
+
+* repartir el recorrido de estilos en tareas pequeñas ([9bf64d4](https://github.com/jair1c/farotv-patches/commit/9bf64d4fa4badc2babc555dd9d11cd6c76ff5826))
+
 ## [1.7.0-dev.8](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.7...v1.7.0-dev.8) (2026-11-17)
 
 ### 🔧 Improvements
