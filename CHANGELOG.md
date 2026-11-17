@@ -1,3 +1,9 @@
+## [1.7.0-dev.4](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.3...v1.7.0-dev.4) (2026-11-17)
+
+### 🔧 Improvements
+
+* **runtime:** agrupar consultas y limitar la caché de votos ([2102f82](https://github.com/jair1c/farotv-patches/commit/2102f826571063e999652dc266ad0b75e6a8166a))
+
 ## [1.7.0-dev.3](https://github.com/jair1c/farotv-patches/compare/v1.7.0-dev.2...v1.7.0-dev.3) (2026-11-17)
 
 ### 🔧 Improvements
